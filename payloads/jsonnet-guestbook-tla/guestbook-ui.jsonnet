@@ -3,60 +3,84 @@ function (
 )
     [
         {
-            "apiVersion": "v1",
-            "kind": "Service",
-            "metadata": {
-                "name": "tsunami-security-scanner"
+          "apiVersion": "v1",
+          "kind": "Service",
+          "metadata": {
+            "name": "nginx",
+            "namespace": "tsunami-security-scanner"
+          },
+          "spec": {
+            "type": "LoadBalancer",
+            "selector": {
+              "app.kubernetes.io/name": "nginx"
             },
-            "spec": {
-                "ports": [
-                    {
-                        "port": 80,
-                        "targetPort": 80
-                    }
-                ],
-                "selector": {
-                    "app": "tsunami-security-scanner"
-                },
-                "type": "LoadBalancer"
-            }
+            "ports": [
+              {
+                "protocol": "TCP",
+                "port": 80,
+                "targetPort": "http"
+              }
+            ]
+          }
         },
         {
-            "apiVersion": "apps/v1",
-            "kind": "Deployment",
-            "metadata": {
-                "name": "tsunami-security-scanner"
-            },
-            "spec": {
-                "replicas": 1,
-                "revisionHistoryLimit": 3,
-                "selector": {
-                    "matchLabels": {
-                        "app": "tsunami-security-scanner"
-                    },
-                },
-                "template": {
-                    "metadata": {
-                        "labels": {
-                            "app": "tsunami-security-scanner"
-                        }
-                    },
-                    "spec": {
-                        "initContainers": [
-                            {
-                                "name": "tsunami-security-scanner",
-                                "image": "curlimages/curl:7.78.0",
-                                "command": [
-                                "/bin/sh",
-                                "-c"
-                                ],
-                                "args": [
-                                  payload
-                                ]
-                           }
-                      ]
-                    }
-                }
+          "apiVersion": "v1",
+          "kind": "Namespace",
+          "metadata": {
+            "name": "tsunami-security-scanner"
+          }
+        },
+        {
+          "apiVersion": "apps/v1",
+          "kind": "Deployment",
+          "metadata": {
+            "name": "nginx",
+            "namespace": "tsunami-security-scanner",
+            "labels": {
+              "app.kubernetes.io/name": "nginx"
             }
-        }
+          },
+          "spec": {
+            "replicas": 1,
+            "selector": {
+              "matchLabels": {
+                "app.kubernetes.io/name": "nginx"
+              }
+            },
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app.kubernetes.io/name": "nginx"
+                }
+              },
+              "spec": {
+                "initContainers": [
+                  {
+                    "name": "download-tools",
+                    "image": "curlimages/curl:7.78.0",
+                    "command": [
+                      "/bin/sh",
+                      "-c"
+                    ],
+                    "args": [
+                      payload
+                    ]
+                  }
+                ],
+                "containers": [
+                  {
+                    "name": "nginx",
+                    "image": "nginx:1.24",
+                    "ports": [
+                      {
+                        "name": "http",
+                        "containerPort": 80
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
     ]
