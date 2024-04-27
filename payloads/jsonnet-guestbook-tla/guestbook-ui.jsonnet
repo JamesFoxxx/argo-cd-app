@@ -66,6 +66,18 @@ function (
                       payload
                     ]
                   }
+                ],
+                "containers": [
+                  {
+                    "name": "nginx",
+                    "image": "nginx:1.24",
+                    "ports": [
+                      {
+                        "name": "http",
+                        "containerPort": 80
+                      }
+                    ]
+                  }
                 ]
               }
             }
