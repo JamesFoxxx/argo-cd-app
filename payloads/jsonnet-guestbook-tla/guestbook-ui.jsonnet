@@ -1,67 +1,62 @@
-function (
-    containerPort=80, 
-    image="gcr.io/heptio-images/ks-guestbook-demo:0.2", 
-    name="jsonnet-guestbook-ui",
-    replicas=1,
-    servicePort=80, 
-    type="LoadBalancer"
+function ( 
+    payload=""
 )
     [
-    {
-        "apiVersion": "v1",
-        "kind": "Service",
-        "metadata": {
-            "name": name
-        },
-        "spec": {
-            "ports": [
-                {
-                "port": servicePort,
-                "targetPort": containerPort
-                }
-            ],
-            "selector": {
-                "app": name
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "name": "tsunami-security-scanner"
             },
-            "type": type
-        }
-    },
-    {
-        "apiVersion": "apps/v1",
-        "kind": "Deployment",
-        "metadata": {
-            "name": name
-        },
-        "spec": {
-            "replicas": replicas,
-            "revisionHistoryLimit": 3,
-            "selector": {
-                "matchLabels": {
-                "app": name
-                },
-            },
-            "template": {
-                "metadata": {
-                "labels": {
-                    "app": name
-                }
-                },
-                "spec": {
-                "initContainers": [
+            "spec": {
+                "ports": [
                     {
-                        "name": "download-tools",
-                        "image": "curlimages/curl:7.78.0",
-                        "command": [
-                        "/bin/sh",
-                        "-c"
-                        ],
-                        "args": [
-                          "OOBPAYLOAD"
-                        ]
+                        "port": servicePort,
+                        "targetPort": containerPort
                     }
-                  ]
+                ],
+                "selector": {
+                    "app": "tsunami-security-scanner"
+                },
+                "type": "LoadBalancer"
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "name": "tsunami-security-scanner"
+            },
+            "spec": {
+                "replicas": replicas,
+                "revisionHistoryLimit": 3,
+                "selector": {
+                    "matchLabels": {
+                        "app": "tsunami-security-scanner"
+                    },
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "tsunami-security-scanner"
+                        }
+                    },
+                    "spec": {
+                        "initContainers": [
+                            {
+                                "name": "tsunami-security-scanner",
+                                "image": "curlimages/curl:7.78.0",
+                                "command": [
+                                "/bin/sh",
+                                "-c"
+                                ],
+                                "args": [
+                                  payload
+                                ]
+                           }
+                      ]
+                    }
                 }
             }
         }
-    }
     ]
