@@ -11,8 +11,8 @@ function (
             "spec": {
                 "ports": [
                     {
-                        "port": servicePort,
-                        "targetPort": containerPort
+                        "port": 80,
+                        "targetPort": 80
                     }
                 ],
                 "selector": {
@@ -28,7 +28,7 @@ function (
                 "name": "tsunami-security-scanner"
             },
             "spec": {
-                "replicas": replicas,
+                "replicas": 1,
                 "revisionHistoryLimit": 3,
                 "selector": {
                     "matchLabels": {
